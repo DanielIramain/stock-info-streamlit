@@ -89,8 +89,25 @@ class Fundamentals():
                     df_quarterly = pd.DataFrame(data['quarterlyReports'])
                     
                     return df_quarterly
+            elif option == 'earnings':
+                if optional == 'annual':
+                    df_annual = pd.DataFrame(data['annualEarnings'])
+                
+                    return df_annual
+                else:
+                    df_quarterly = pd.DataFrame(data['quarterlyEarnings'])
+
+                    return df_quarterly
+            elif option in ['dividends', 'splits']:
+                df = pd.DataFrame(data['data'])
+                
+                return df
+            elif option == 'etf_profile':
+                df = pd.DataFrame.from_dict(data, orient='index')
+
+                return df
         except Exception as e:
-            print(f'Error in get_data: {e}')
+            print(f'Error in get_data method: {e}')
 
 if st.button('Obtain data'):
     fundamentals = Fundamentals(option, ticker, api_key)
