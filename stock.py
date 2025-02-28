@@ -13,8 +13,10 @@ services = {'Fundamentals': ['overview',
                             'etf_profile']}
 
 option = st.selectbox('Select an option', services['Fundamentals'])
-
 'You selected: ', option
+
+optional = st.selectbox('Select the time line: ', ['annual', 'quarterly'])
+'You selected: ', optional
 
 ticker = st.text_input('Company ticker', key='ticker')
 f'Ticker selected: {st.session_state.ticker}'
@@ -73,9 +75,22 @@ class Fundamentals():
         r = requests.get(url)
         data = r.json()
 
-        df = pd.DataFrame.from_dict(data, orient='index')
+        try:
+            if option ==  'overview':
+                df = pd.DataFrame.from_dict(data, orient='index')
 
-        return df
+                return df
+            elif option in ['income_statement', 'balance_sheet', 'cash_flow']:
+                if optional == 'annual':
+                    df_annual = pd.DataFrame(data['annualReports'])
+
+                    return df_annual
+                else:
+                    df_quarterly = pd.DataFrame(data['quarterlyReports'])
+                    
+                    return df_quarterly
+        except Exception as e:
+            print(f'Error in get_data: {e}')
 
 if st.button('Obtain data'):
     fundamentals = Fundamentals(option, ticker, api_key)
