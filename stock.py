@@ -3,17 +3,19 @@ import requests
 import pandas as pd
 import streamlit as st
 
-services = {'Fundamentals': ['overview',
-                            'income_statement', 
-                            'balance_sheet',
-                            'cash_flow',
-                            'earnings',
-                            'dividends',
-                            'splits',
-                            'etf_profile']}
+services = {
+    'Overview': 'overview',
+    'Income Statement': 'income_statement',
+    'Balance Sheet': 'balance_sheet',
+    'Cash Flow': 'cash_flow',
+    'Earnings': 'earnings',
+    'Dividends': 'dividends',
+    'Splits': 'splits',
+    'ETF Profile': 'etf_profile'
+}
 
-option = st.selectbox('Select an option', services['Fundamentals'])
-'You selected: ', option
+option = st.selectbox('Select an option', services)
+'You selected: ', services[option]
 
 optional = st.selectbox('Select the time line: ', ['annual', 'quarterly'])
 'You selected: ', optional
@@ -35,20 +37,20 @@ class Fundamentals():
         return self.__service
 
     @property
-    def symbol(self):
+    def ticker(self):
         return self.__ticker
 
     @property
-    def apikey(self):
+    def api_key(self):
         return self.__api_key
 
-    #@ticker.setter
-    #def ticker(self, new_ticker):
-    #    self.__ticker = self.validate_ticker(new_ticker)
+    @ticker.setter
+    def ticker(self, new_ticker):
+        self.__ticker = self.validate_ticker(new_ticker)
 
-    #@api_key.setter
-    #def api_key(self, new_api_key):
-    #    self.__api_key = self.validate_api_key(new_api_key)
+    @api_key.setter
+    def api_key(self, new_api_key):
+        self.__api_key = self.validate_api_key(new_api_key)
 
     def validate_ticker(self, ticker: str) -> str:
         try:
@@ -60,7 +62,7 @@ class Fundamentals():
 
             return new_ticker
     
-    def validate_api_key(self, apikey: str) -> str:
+    def validate_api_key(self, api_key: str) -> str:
         try:
             new_api_key = str(api_key)
 
@@ -76,11 +78,11 @@ class Fundamentals():
         data = r.json()
 
         try:
-            if option ==  'overview':
+            if services[option] ==  'overview':
                 df = pd.DataFrame.from_dict(data, orient='index')
 
                 return df
-            elif option in ['income_statement', 'balance_sheet', 'cash_flow']:
+            elif services[option] in ['income_statement', 'balance_sheet', 'cash_flow']:
                 if optional == 'annual':
                     df_annual = pd.DataFrame(data['annualReports'])
 
@@ -89,7 +91,7 @@ class Fundamentals():
                     df_quarterly = pd.DataFrame(data['quarterlyReports'])
                     
                     return df_quarterly
-            elif option == 'earnings':
+            elif services[option] == 'earnings':
                 if optional == 'annual':
                     df_annual = pd.DataFrame(data['annualEarnings'])
                 
@@ -98,11 +100,11 @@ class Fundamentals():
                     df_quarterly = pd.DataFrame(data['quarterlyEarnings'])
 
                     return df_quarterly
-            elif option in ['dividends', 'splits']:
+            elif services[option] in ['dividends', 'splits']:
                 df = pd.DataFrame(data['data'])
                 
                 return df
-            elif option == 'etf_profile':
+            elif services[option] == 'etf_profile':
                 df = pd.DataFrame.from_dict(data, orient='index')
 
                 return df
@@ -110,6 +112,7 @@ class Fundamentals():
             print(f'Error in get_data method: {e}')
 
 if st.button('Obtain data'):
-    fundamentals = Fundamentals(option, ticker, api_key)
+    fundamentals = Fundamentals(services[option], ticker, api_key)
     data = fundamentals.get_data()
+    
     st.dataframe(data)
