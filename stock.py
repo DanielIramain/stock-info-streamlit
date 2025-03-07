@@ -29,8 +29,8 @@ f'API key selected: {st.session_state.key}'
 class Fundamentals():
     def __init__(self, service: str, ticker: str, api_key: str):    
         self.__service = service
-        self.__ticker = self.validate_ticker(ticker)
-        self.__api_key = self.validate_api_key(api_key)
+        self.__ticker = ticker
+        self.__api_key = api_key
 
     @property
     def service(self):
@@ -111,8 +111,46 @@ class Fundamentals():
         except Exception as e:
             print(f'Error in get_data method: {e}')
 
+class Grapher():
+    def __init__(self, data):
+        self.__data = data
+
+    @property
+    def data(self):
+        "data presented as DataFrame"
+        return self.__data
+
+    def plot_line_chart(self, title: str, x_axis, y_axis, x_text: str, y_text:str):
+        st.header(title)
+        st.line_chart(self.data, x=x_axis, y=y_axis, x_label=x_text, y_label=y_text)
+    
 if st.button('Obtain data'):
     fundamentals = Fundamentals(services[option], ticker, api_key)
     data = fundamentals.get_data()
     
+    graphs = Grapher(data)
+    
     st.dataframe(data)
+
+    if services[option] == 'income_statement':
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            data['grossProfit'] = data['grossProfit'].astype(int)
+            
+            graphs.plot_line_chart("Gross profit evolution", 'fiscalDateEnding', 'grossProfit', 
+                                   'Fiscal date ending', 'Gross profit expressed in dollars')
+            
+            graphs.plot_line_chart("Revenue and cost revenue evolution", 'fiscalDateEnding', 
+                                   ['totalRevenue', 'costOfRevenue', 'costofGoodsAndServicesSold'], 
+                                   'Fiscal date ending', 'Revenue and cost expresed in dollars')
+
+        with col2:
+            ### converts data columns to int type and makes the calculus for the gross profit margin
+            data['totalRevenue'] = data['totalRevenue'].astype(int)
+            data['costofGoodsAndServicesSold'] = data['costofGoodsAndServicesSold'].astype(int)
+            data['grossProfitMargin'] = ((data['totalRevenue'] - data['costofGoodsAndServicesSold']) / data['totalRevenue']) * 100
+
+            graphs.plot_line_chart("Gross profit margin evolution", 'fiscalDateEnding', 'grossProfitMargin', 
+                                   'Fiscal date ending', 'Gross profit margin')
