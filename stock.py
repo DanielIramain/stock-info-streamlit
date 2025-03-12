@@ -3,6 +3,9 @@ import requests
 import pandas as pd
 import streamlit as st
 
+ticker = st.text_input('Company ticker', key='ticker')
+f'Ticker selected: {st.session_state.ticker}'
+
 services = {
     'Overview': 'overview',
     'Income Statement': 'income_statement',
@@ -20,25 +23,23 @@ option = st.selectbox('Select an option', services)
 optional = st.selectbox('Select the time line: ', ['annual', 'quarterly'])
 'You selected: ', optional
 
-ticker = st.text_input('Company ticker', key='ticker')
-f'Ticker selected: {st.session_state.ticker}'
-
 api_key = st.text_input('API key', key='key', type="password")
 f'API key selected: {st.session_state.key}'
 
 class Fundamentals():
-    def __init__(self, service: str, ticker: str, api_key: str):    
-        self.__service = service
+    'Fundamental Analysis class that works with a ticker, the service and an API key'
+    def __init__(self, ticker: str, service: str, api_key: str):    
         self.__ticker = ticker
+        self.__service = service
         self.__api_key = api_key
-
-    @property
-    def service(self):
-        return self.__service
 
     @property
     def ticker(self):
         return self.__ticker
+    
+    @property
+    def service(self):
+        return self.__service
 
     @property
     def api_key(self):
@@ -73,6 +74,8 @@ class Fundamentals():
             return None
 
     def get_data(self):
+        'Obtain financial data for Fundamental Analysis as DataFrame'
+        
         url = f'https://www.alphavantage.co/query?function={self.__service}&symbol={self.__ticker}&apikey={self.__api_key}'
         r = requests.get(url)
         data = r.json()
@@ -112,20 +115,22 @@ class Fundamentals():
             print(f'Error in get_data method: {e}')
 
 class Grapher():
+    'Plot financial information'
     def __init__(self, data):
         self.__data = data
 
     @property
-    def data(self):
+    def data(self) -> pd.DataFrame:
         "data presented as DataFrame"
         return self.__data
 
     def plot_line_chart(self, title: str, x_axis, y_axis, x_text: str, y_text:str):
+        'Plot a line chart using "native" type provided by Streamlit'
         st.header(title)
         st.line_chart(self.data, x=x_axis, y=y_axis, x_label=x_text, y_label=y_text)
     
 if st.button('Obtain data'):
-    fundamentals = Fundamentals(services[option], ticker, api_key)
+    fundamentals = Fundamentals(ticker, services[option], api_key)
     data = fundamentals.get_data()
     
     graphs = Grapher(data)
@@ -133,6 +138,10 @@ if st.button('Obtain data'):
     st.dataframe(data)
 
     if services[option] == 'income_statement':
+        
+        graphs.plot_line_chart("Revenue and cost revenue evolution", 'fiscalDateEnding', 
+                               ['totalRevenue', 'costOfRevenue', 'costofGoodsAndServicesSold'], 
+                               'Fiscal date ending', 'Revenue and cost expresed in dollars')
 
         col1, col2 = st.columns(2)
 
@@ -142,10 +151,6 @@ if st.button('Obtain data'):
             graphs.plot_line_chart("Gross profit evolution", 'fiscalDateEnding', 'grossProfit', 
                                    'Fiscal date ending', 'Gross profit expressed in dollars')
             
-            graphs.plot_line_chart("Revenue and cost revenue evolution", 'fiscalDateEnding', 
-                                   ['totalRevenue', 'costOfRevenue', 'costofGoodsAndServicesSold'], 
-                                   'Fiscal date ending', 'Revenue and cost expresed in dollars')
-
         with col2:
             ### converts data columns to int type and makes the calculus for the gross profit margin
             data['totalRevenue'] = data['totalRevenue'].astype(int)
