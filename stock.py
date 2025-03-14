@@ -128,33 +128,46 @@ class Grapher():
         'Plot a line chart using "native" type provided by Streamlit'
         st.header(title)
         st.line_chart(self.data, x=x_axis, y=y_axis, x_label=x_text, y_label=y_text)
-    
+
+def pipeline(df: pd.DataFrame, columns_list:list) -> pd.DataFrame:
+    df_aux = df[columns_list]
+
+    df.drop(columns=columns_list, inplace=True)
+
+    for colum in df.columns:
+        df[colum] = pd.to_numeric(df[colum], errors='coerce')
+
+    df.fillna(0, inplace=True)
+
+    df = df_aux.join(df)
+    print(f'check inside the function: {df}')
+    print('check inside the function with info():')
+    df.info()
+
+    return df
+
 if st.button('Obtain data'):
     fundamentals = Fundamentals(ticker, services[option], api_key)
     data = fundamentals.get_data()
     
-    graphs = Grapher(data)
-    
     st.dataframe(data)
 
     if services[option] == 'income_statement':
+
+        data = pipeline(data, ['fiscalDateEnding', 'reportedCurrency'])
+        
+        graphs = Grapher(data)
         
         graphs.plot_line_chart("Revenue and cost revenue evolution", 'fiscalDateEnding', 
                                ['totalRevenue', 'costOfRevenue', 'costofGoodsAndServicesSold'], 
                                'Fiscal date ending', 'Revenue and cost expresed in dollars')
 
         col1, col2 = st.columns(2)
-
         with col1:
-            data['grossProfit'] = data['grossProfit'].astype(int)
-            
             graphs.plot_line_chart("Gross profit evolution", 'fiscalDateEnding', 'grossProfit', 
                                    'Fiscal date ending', 'Gross profit expressed in dollars')
             
         with col2:
-            ### converts data columns to int type and makes the calculus for the gross profit margin
-            data['totalRevenue'] = data['totalRevenue'].astype(int)
-            data['costofGoodsAndServicesSold'] = data['costofGoodsAndServicesSold'].astype(int)
             data['grossProfitMargin'] = ((data['totalRevenue'] - data['costofGoodsAndServicesSold']) / data['totalRevenue']) * 100
 
             graphs.plot_line_chart("Gross profit margin evolution", 'fiscalDateEnding', 'grossProfitMargin', 
