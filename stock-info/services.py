@@ -1,7 +1,10 @@
 import requests 
 
+import utils
+
 import pandas as pd
 import streamlit as st
+
 
 ticker = st.text_input('Company ticker', key='ticker')
 f'Ticker selected: {st.session_state.ticker}'
@@ -135,20 +138,6 @@ class Grapher():
         st.header(title)
         st.line_chart(self.data, x=x_axis, y=y_axis, x_label=x_text, y_label=y_text)
     
-def pipeline(df: pd.DataFrame, columns_list:list) -> pd.DataFrame:
-    df_aux = df[columns_list]
-
-    df.drop(columns=columns_list, inplace=True)
-
-    for colum in df.columns:
-        df[colum] = pd.to_numeric(df[colum], errors='coerce')
-
-    df.fillna(0, inplace=True)
-
-    df = df_aux.join(df)
-
-    return df
-
 if st.button('Obtain data'):
     fundamentals = Fundamentals(ticker, services[option], api_key)
     data_overview = fundamentals.get_overview()
@@ -166,7 +155,7 @@ if st.button('Obtain data'):
 
     if services[option] == 'income_statement':
 
-        data = pipeline(data, ['fiscalDateEnding', 'reportedCurrency'])
+        data = utils.pipeline(data, ['fiscalDateEnding', 'reportedCurrency'])
         
         graphs = Grapher(data)
 
