@@ -7,7 +7,6 @@ ticker = st.text_input('Company ticker', key='ticker')
 f'Ticker selected: {st.session_state.ticker}'
 
 services = {
-    'Overview': 'overview',
     'Income Statement': 'income_statement',
     'Balance Sheet': 'balance_sheet',
     'Cash Flow': 'cash_flow',
@@ -73,19 +72,26 @@ class Fundamentals():
 
             return None
 
+    def get_overview(self):
+        'Obtain overview of the company: description and indicators'
+        url = f'https://www.alphavantage.co/query?function=overview&symbol={self.__ticker}&apikey={self.__api_key}'
+        r = requests.get(url)
+        data = r.json()
+        df_overview = pd.DataFrame.from_dict(data, orient='index')
+        resume = df_overview.loc['MarketCapitalization'::]
+
+        df_overview.drop(resume.index.values.tolist(), inplace=True)
+        
+        return [df_overview, resume]
+
     def get_data(self):
         'Obtain financial data for Fundamental Analysis as DataFrame'
-        
         url = f'https://www.alphavantage.co/query?function={self.__service}&symbol={self.__ticker}&apikey={self.__api_key}'
         r = requests.get(url)
         data = r.json()
-
+        
         try:
-            if services[option] ==  'overview':
-                df = pd.DataFrame.from_dict(data, orient='index')
-
-                return df
-            elif services[option] in ['income_statement', 'balance_sheet', 'cash_flow']:
+            if services[option] in ['income_statement', 'balance_sheet', 'cash_flow']:
                 if optional == 'annual':
                     df_annual = pd.DataFrame(data['annualReports'])
 
@@ -128,7 +134,7 @@ class Grapher():
         'Plot a line chart using "native" type provided by Streamlit'
         st.header(title)
         st.line_chart(self.data, x=x_axis, y=y_axis, x_label=x_text, y_label=y_text)
-
+    
 def pipeline(df: pd.DataFrame, columns_list:list) -> pd.DataFrame:
     df_aux = df[columns_list]
 
@@ -140,35 +146,46 @@ def pipeline(df: pd.DataFrame, columns_list:list) -> pd.DataFrame:
     df.fillna(0, inplace=True)
 
     df = df_aux.join(df)
-    print(f'check inside the function: {df}')
-    print('check inside the function with info():')
-    df.info()
 
     return df
 
 if st.button('Obtain data'):
     fundamentals = Fundamentals(ticker, services[option], api_key)
+    data_overview = fundamentals.get_overview()
     data = fundamentals.get_data()
     
-    st.dataframe(data)
+    with st.container():
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.dataframe(data_overview[0])
+        with col2:
+            st.dataframe(data_overview[1])
+        
+        st.dataframe(data)
 
     if services[option] == 'income_statement':
 
         data = pipeline(data, ['fiscalDateEnding', 'reportedCurrency'])
         
         graphs = Grapher(data)
-        
-        graphs.plot_line_chart("Revenue and cost revenue evolution", 'fiscalDateEnding', 
+
+        graphs.plot_line_chart('Revenue and cost revenue evolution', 'fiscalDateEnding', 
                                ['totalRevenue', 'costOfRevenue', 'costofGoodsAndServicesSold'], 
                                'Fiscal date ending', 'Revenue and cost expresed in dollars')
+        
+        graphs.plot_line_chart('Net income evolution over time', 'fiscalDateEnding', 'netIncome', 
+                               'Fiscal date ending', 'Net income in dollars')
+        
+        graphs.plot_line_chart('EBITDA evolution', 'fiscalDateEnding', 'ebitda', 'Fiscal date ending', 'EBITDA in dollars')
 
         col1, col2 = st.columns(2)
         with col1:
-            graphs.plot_line_chart("Gross profit evolution", 'fiscalDateEnding', 'grossProfit', 
+            graphs.plot_line_chart('Gross profit evolution', 'fiscalDateEnding', 'grossProfit', 
                                    'Fiscal date ending', 'Gross profit expressed in dollars')
             
         with col2:
             data['grossProfitMargin'] = ((data['totalRevenue'] - data['costofGoodsAndServicesSold']) / data['totalRevenue']) * 100
 
-            graphs.plot_line_chart("Gross profit margin evolution", 'fiscalDateEnding', 'grossProfitMargin', 
+            graphs.plot_line_chart('Gross profit margin evolution', 'fiscalDateEnding', 'grossProfitMargin', 
                                    'Fiscal date ending', 'Gross profit margin')
