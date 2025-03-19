@@ -2,7 +2,9 @@ import requests
 
 import utils
 
+import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 import streamlit as st
 
 
@@ -137,6 +139,32 @@ class Grapher():
         'Plot a line chart using "native" type provided by Streamlit'
         st.header(title)
         st.line_chart(self.data, x=x_axis, y=y_axis, x_label=x_text, y_label=y_text)
+
+    def plot_pie_chart(self, size: tuple, title: str, data: pd.DataFrame, columns: list, items_legend: list):
+        'Plot a pie chart with legend'
+        fig, ax = plt.subplots(figsize=size, subplot_kw=dict(aspect="equal"))
+
+        first_row = data.iloc[0]
+        df_first_row = first_row[columns]
+        legend = items_legend
+
+        def func(pct, allvals):
+            absolute = int(np.round(pct/100.*np.sum(allvals)))
+            return f"{pct:.1f}%\n(${absolute:d})"
+
+        wedges, texts, autotexts = ax.pie(df_first_row, autopct=lambda pct: func(pct, df_first_row),
+                                          textprops=dict(color="w"))
+
+        ax.legend(wedges, legend,
+                  title="Concepts",
+                  loc="center left",
+                  bbox_to_anchor=(1, 0, 0.5, 1))
+
+        plt.setp(autotexts, size=8, weight="bold")
+
+        ax.set_title(title)
+
+        st.pyplot(fig)
     
 if st.button('Obtain data'):
     fundamentals = Fundamentals(ticker, services[option], api_key)
@@ -173,8 +201,17 @@ if st.button('Obtain data'):
             graphs.plot_line_chart('Gross profit evolution', 'fiscalDateEnding', 'grossProfit', 
                                    'Fiscal date ending', 'Gross profit expressed in dollars')
             
+            graphs.plot_pie_chart(size=(9, 9),title='Total revenue and cost', 
+                                  data=data, columns=['totalRevenue', 'costOfRevenue'], items_legend=['Total revenue', 'Cost of revenue'])
+            
         with col2:
             data['grossProfitMargin'] = ((data['totalRevenue'] - data['costofGoodsAndServicesSold']) / data['totalRevenue']) * 100
 
             graphs.plot_line_chart('Gross profit margin evolution', 'fiscalDateEnding', 'grossProfitMargin', 
                                    'Fiscal date ending', 'Gross profit margin')
+            
+            graphs.plot_pie_chart(size=(9,9), title='Costs of the company', data=data, 
+                                  columns=['costofGoodsAndServicesSold', 
+                                           'sellingGeneralAndAdministrative', 'researchAndDevelopment', 'operatingExpenses'], 
+                                  items_legend=['Cost of goods and services sold', 
+                                                'General and administrative costs', 'R&D Cost', 'Operating expenses'])
