@@ -7,43 +7,31 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
 
+services = ['income_statement', 
+            'balance_sheet', 
+            'cash_flow', 
+            'earnings', 
+            'dividends', 'splits']
+
 
 ticker = st.text_input('Company ticker', key='ticker')
-f'Ticker selected: {st.session_state.ticker}'
-
-services = {
-    'Income Statement': 'income_statement',
-    'Balance Sheet': 'balance_sheet',
-    'Cash Flow': 'cash_flow',
-    'Earnings': 'earnings',
-    'Dividends': 'dividends',
-    'Splits': 'splits',
-    'ETF Profile': 'etf_profile'
-}
-
-option = st.selectbox('Select an option', services)
-'You selected: ', services[option]
+f'The ticker of the company you need information about'
 
 optional = st.selectbox('Select the time line: ', ['annual', 'quarterly'])
 'You selected: ', optional
 
 api_key = st.text_input('API key', key='key', type="password")
-f'API key selected: {st.session_state.key}'
+f'The API key from the Alpha Vantage service'
 
 class Fundamentals():
     'Fundamental Analysis class that works with a ticker, the service and an API key'
-    def __init__(self, ticker: str, service: str, api_key: str):    
+    def __init__(self, ticker: str, api_key: str):    
         self.__ticker = ticker
-        self.__service = service
         self.__api_key = api_key
 
     @property
     def ticker(self):
         return self.__ticker
-    
-    @property
-    def service(self):
-        return self.__service
 
     @property
     def api_key(self):
@@ -89,41 +77,42 @@ class Fundamentals():
         
         return [df_overview, resume]
 
-    def get_data(self):
-        'Obtain financial data for Fundamental Analysis as DataFrame'
-        url = f'https://www.alphavantage.co/query?function={self.__service}&symbol={self.__ticker}&apikey={self.__api_key}'
-        r = requests.get(url)
-        data = r.json()
-        
+    def get_data(self, option: str):
+        'Obtain financial data as DataFrame for Fundamental Analysis'
+
         try:
-            if services[option] in ['income_statement', 'balance_sheet', 'cash_flow']:
+            url = f'https://www.alphavantage.co/query?function={option}&symbol={self.__ticker}&apikey={self.__api_key}'
+            r = requests.get(url)
+            data = r.json()
+            
+            if option in ['income_statement', 'balance_sheet', 'cash_flow']:
                 if optional == 'annual':
                     df_annual = pd.DataFrame(data['annualReports'])
-
+                    
                     return df_annual
                 else:
                     df_quarterly = pd.DataFrame(data['quarterlyReports'])
                     
                     return df_quarterly
-            elif services[option] == 'earnings':
+            elif option == 'earnings':
                 if optional == 'annual':
-                    df_annual = pd.DataFrame(data['annualEarnings'])
-                
-                    return df_annual
+                    df_annual_earnings = pd.DataFrame(data['annualEarnings'])
+                    
+                    return df_annual_earnings
                 else:
-                    df_quarterly = pd.DataFrame(data['quarterlyEarnings'])
-
-                    return df_quarterly
-            elif services[option] in ['dividends', 'splits']:
+                    df_quarterly_earnings = pd.DataFrame(data['quarterlyEarnings'])
+                    
+                    return df_quarterly_earnings
+            elif option in ['dividends', 'splits']:
                 df = pd.DataFrame(data['data'])
                 
                 return df
-            elif services[option] == 'etf_profile':
+            elif option == 'etf_profile':
                 df = pd.DataFrame.from_dict(data, orient='index')
-
+                
                 return df
         except Exception as e:
-            print(f'Error in get_data method: {e}')
+            print(f'Error in get_data method: {type(e).__name__}')
 
 class Grapher():
     'Plot financial information'
@@ -167,9 +156,8 @@ class Grapher():
         st.pyplot(fig)
     
 if st.button('Obtain data'):
-    fundamentals = Fundamentals(ticker, services[option], api_key)
+    fundamentals = Fundamentals(ticker, api_key)
     data_overview = fundamentals.get_overview()
-    data = fundamentals.get_data()
     
     with st.container():
         col1, col2 = st.columns(2)
@@ -179,39 +167,64 @@ if st.button('Obtain data'):
         with col2:
             st.dataframe(data_overview[1])
         
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(['Income statement', 'Balance Sheet', 'Cash Flow', 'Earnings', 'Dividends', 'Splits'])
+
+    with tab1:
+        data = fundamentals.get_data('income_statement')
+
+        st.dataframe(data)
+    with tab2:
+        data = fundamentals.get_data('balance_sheet')
+
+        st.dataframe(data)
+    with tab3:
+        data = fundamentals.get_data('cash_flow')
+
+        st.dataframe(data)
+    with tab4:
+        data = fundamentals.get_data('earnings')
+
+        st.dataframe(data)
+    with tab5:
+        data = fundamentals.get_data('dividends')
+
+        st.dataframe(data)
+    with tab6:
+        data = fundamentals.get_data('splits')
+
         st.dataframe(data)
 
-    if services[option] == 'income_statement':
-
-        data = utils.pipeline(data, ['fiscalDateEnding', 'reportedCurrency'])
-        
-        graphs = Grapher(data)
-
-        graphs.plot_line_chart('Revenue and cost revenue evolution', 'fiscalDateEnding', 
-                               ['totalRevenue', 'costOfRevenue', 'costofGoodsAndServicesSold'], 
-                               'Fiscal date ending', 'Revenue and cost expresed in dollars')
-        
-        graphs.plot_line_chart('Net income evolution over time', 'fiscalDateEnding', 'netIncome', 
-                               'Fiscal date ending', 'Net income in dollars')
-        
-        graphs.plot_line_chart('EBITDA evolution', 'fiscalDateEnding', 'ebitda', 'Fiscal date ending', 'EBITDA in dollars')
-
-        col1, col2 = st.columns(2)
-        with col1:
-            graphs.plot_line_chart('Gross profit evolution', 'fiscalDateEnding', 'grossProfit', 
-                                   'Fiscal date ending', 'Gross profit expressed in dollars')
-            
-            graphs.plot_pie_chart(size=(9, 9),title='Total revenue and cost', 
-                                  data=data, columns=['totalRevenue', 'costOfRevenue'], items_legend=['Total revenue', 'Cost of revenue'])
-            
-        with col2:
-            data['grossProfitMargin'] = ((data['totalRevenue'] - data['costofGoodsAndServicesSold']) / data['totalRevenue']) * 100
-
-            graphs.plot_line_chart('Gross profit margin evolution', 'fiscalDateEnding', 'grossProfitMargin', 
-                                   'Fiscal date ending', 'Gross profit margin')
-            
-            graphs.plot_pie_chart(size=(9,9), title='Costs of the company', data=data, 
-                                  columns=['costofGoodsAndServicesSold', 
-                                           'sellingGeneralAndAdministrative', 'researchAndDevelopment', 'operatingExpenses'], 
-                                  items_legend=['Cost of goods and services sold', 
-                                                'General and administrative costs', 'R&D Cost', 'Operating expenses'])
+    #if services[option] == 'income_statement':
+#
+    #    data = utils.pipeline(data, ['fiscalDateEnding', 'reportedCurrency'])
+    #    
+    #    graphs = Grapher(data)
+#
+    #    graphs.plot_line_chart('Revenue and cost revenue evolution', 'fiscalDateEnding', 
+    #                           ['totalRevenue', 'costOfRevenue', 'costofGoodsAndServicesSold'], 
+    #                           'Fiscal date ending', 'Revenue and cost expresed in dollars')
+    #    
+    #    graphs.plot_line_chart('Net income evolution over time', 'fiscalDateEnding', 'netIncome', 
+    #                           'Fiscal date ending', 'Net income in dollars')
+    #    
+    #    graphs.plot_line_chart('EBITDA evolution', 'fiscalDateEnding', 'ebitda', 'Fiscal date ending', 'EBITDA in dollars')
+#
+    #    col1, col2 = st.columns(2)
+    #    with col1:
+    #        graphs.plot_line_chart('Gross profit evolution', 'fiscalDateEnding', 'grossProfit', 
+    #                               'Fiscal date ending', 'Gross profit expressed in dollars')
+    #        
+    #        graphs.plot_pie_chart(size=(9, 9),title='Total revenue and cost', 
+    #                              data=data, columns=['totalRevenue', 'costOfRevenue'], items_legend=['Total revenue', 'Cost of revenue'])
+    #        
+    #    with col2:
+    #        data['grossProfitMargin'] = ((data['totalRevenue'] - data['costofGoodsAndServicesSold']) / data['totalRevenue']) * 100
+#
+    #        graphs.plot_line_chart('Gross profit margin evolution', 'fiscalDateEnding', 'grossProfitMargin', 
+    #                               'Fiscal date ending', 'Gross profit margin')
+    #        
+    #        graphs.plot_pie_chart(size=(9,9), title='Costs of the company', data=data, 
+    #                              columns=['costofGoodsAndServicesSold', 
+    #                                       'sellingGeneralAndAdministrative', 'researchAndDevelopment', 'operatingExpenses'], 
+    #                              items_legend=['Cost of goods and services sold', 
+    #                                            'General and administrative costs', 'R&D Cost', 'Operating expenses'])
