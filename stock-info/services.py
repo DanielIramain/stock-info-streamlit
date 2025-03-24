@@ -13,16 +13,6 @@ services = ['income_statement',
             'earnings', 
             'dividends', 'splits']
 
-
-ticker = st.text_input('Company ticker', key='ticker')
-f'The ticker of the company you need information about'
-
-optional = st.selectbox('Select the time line: ', ['annual', 'quarterly'])
-'You selected: ', optional
-
-api_key = st.text_input('API key', key='key', type="password")
-f'The API key from the Alpha Vantage service'
-
 class Fundamentals():
     'Fundamental Analysis class that works with a ticker, the service and an API key'
     def __init__(self, ticker: str, api_key: str):    
@@ -39,31 +29,11 @@ class Fundamentals():
 
     @ticker.setter
     def ticker(self, new_ticker):
-        self.__ticker = self.validate_ticker(new_ticker)
+        self.__ticker = new_ticker
 
     @api_key.setter
     def api_key(self, new_api_key):
-        self.__api_key = self.validate_api_key(new_api_key)
-
-    def validate_ticker(self, ticker: str) -> str:
-        try:
-            new_ticker = str(ticker)
-
-            return new_ticker
-        except ValueError:
-            print('The ticker must be valid')
-
-            return new_ticker
-    
-    def validate_api_key(self, api_key: str) -> str:
-        try:
-            new_api_key = str(api_key)
-
-            return new_api_key
-        except ValueError:
-            print('The apikey must be valid')
-
-            return None
+        self.__api_key = new_api_key
 
     def get_overview(self):
         'Obtain overview of the company: description and indicators'
@@ -155,44 +125,51 @@ class Grapher():
 
         st.pyplot(fig)
     
-if st.button('Obtain data'):
+with st.form('Data input'):
+    ticker = st.text_input('Company ticker', key='ticker')
+    'The ticker of the company you need information about (US MARKET data only).'
+
+    optional = st.selectbox('Select the time lapse: ', ['annual', 'quarterly'])
+    'This option will modify the display information of time period in: income statement, balance sheet, cash flow and earnings report.'
+
+    api_key = st.text_input('API key', key='key', type="password")
+    'The API key from the Alpha Vantage service'
+
+    submit = st.form_submit_button('Obtain data')
+
+if submit:
     fundamentals = Fundamentals(ticker, api_key)
     data_overview = fundamentals.get_overview()
-    
+
     with st.container():
         col1, col2 = st.columns(2)
-
         with col1:
             st.dataframe(data_overview[0])
         with col2:
             st.dataframe(data_overview[1])
-        
+    
     tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(['Income statement', 'Balance Sheet', 'Cash Flow', 'Earnings', 'Dividends', 'Splits'])
-
     with tab1:
         data = fundamentals.get_data('income_statement')
-
         st.dataframe(data)
     with tab2:
         data = fundamentals.get_data('balance_sheet')
-
         st.dataframe(data)
     with tab3:
         data = fundamentals.get_data('cash_flow')
-
         st.dataframe(data)
     with tab4:
         data = fundamentals.get_data('earnings')
-
         st.dataframe(data)
     with tab5:
         data = fundamentals.get_data('dividends')
-
         st.dataframe(data)
     with tab6:
         data = fundamentals.get_data('splits')
-
         st.dataframe(data)
+
+#if st.button('Obtain data'):
+
 
     #if services[option] == 'income_statement':
 #
