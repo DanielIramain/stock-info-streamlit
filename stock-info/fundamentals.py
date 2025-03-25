@@ -56,7 +56,7 @@ class Fundamentals():
             data = r.json()
             
             if option in ['income_statement', 'balance_sheet', 'cash_flow']:
-                if optional == 'annual':
+                if st.session_state['optional'] == 'annual':
                     df_annual = pd.DataFrame(data['annualReports'])
                     
                     return df_annual
@@ -65,7 +65,7 @@ class Fundamentals():
                     
                     return df_quarterly
             elif option == 'earnings':
-                if optional == 'annual':
+                if st.session_state['optional'] == 'annual':
                     df_annual_earnings = pd.DataFrame(data['annualEarnings'])
                     
                     return df_annual_earnings
@@ -124,49 +124,6 @@ class Grapher():
         ax.set_title(title)
 
         st.pyplot(fig)
-    
-with st.form('Data input'):
-    ticker = st.text_input('Company ticker', key='ticker')
-    'The ticker of the company you need information about (US MARKET data only).'
-
-    optional = st.selectbox('Select the time lapse: ', ['annual', 'quarterly'])
-    'This option will modify the display information of time period in: income statement, balance sheet, cash flow and earnings report.'
-
-    api_key = st.text_input('API key', key='key', type="password")
-    'The API key from the Alpha Vantage service'
-
-    submit = st.form_submit_button('Obtain data')
-
-if submit:
-    fundamentals = Fundamentals(ticker, api_key)
-    data_overview = fundamentals.get_overview()
-
-    with st.container():
-        col1, col2 = st.columns(2)
-        with col1:
-            st.dataframe(data_overview[0])
-        with col2:
-            st.dataframe(data_overview[1])
-    
-    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(['Income statement', 'Balance Sheet', 'Cash Flow', 'Earnings', 'Dividends', 'Splits'])
-    with tab1:
-        data = fundamentals.get_data('income_statement')
-        st.dataframe(data)
-    with tab2:
-        data = fundamentals.get_data('balance_sheet')
-        st.dataframe(data)
-    with tab3:
-        data = fundamentals.get_data('cash_flow')
-        st.dataframe(data)
-    with tab4:
-        data = fundamentals.get_data('earnings')
-        st.dataframe(data)
-    with tab5:
-        data = fundamentals.get_data('dividends')
-        st.dataframe(data)
-    with tab6:
-        data = fundamentals.get_data('splits')
-        st.dataframe(data)
 
 #if st.button('Obtain data'):
 
