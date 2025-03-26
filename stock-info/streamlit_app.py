@@ -10,6 +10,20 @@ pg.run()
 st.title('_Stock Info_')
 st.header(':red[Historical financial market data]')
 
+st.sidebar.markdown(
+    """
+    <div style="position: fixed; bottom: 10px; left: 10px; display: flex; align-items: center;">
+        <a href="https://github.com/DanielIramain" target="_blank" style="margin-right: 10px;">
+            <img src="https://img.icons8.com/?size=80&id=iEBcQcM9rnZ9&format=png">
+        </a>
+        v1.0.0
+    </div>
+    """, 
+    unsafe_allow_html=True
+)
+
+st.logo('../resources/logo-stock-info.png', size='large', icon_image='../resources/icon-stock-info.png')
+
 st.markdown("Obtain financial information from publicly traded companies "
 "in the U.S. stock market through [Alpha Vantage's](https://www.alphavantage.co/) API.")
 
@@ -28,13 +42,13 @@ st.subheader('Fundamentals: financial statements and reports', divider=True)
 
 st.markdown('##### Currently provides accounting and financial information about the company.')
 
-st.markdown(':red[**Overview**]: General information about the company.')
-st.markdown(':red[**Income Statement**]: Income statements for the last 5 periods.')
-st.markdown(':red[**Balance Sheet**]: Balance sheets for the last 5 periods.')
-st.markdown(':red[**Cash Flow**]: Financial statement showing cash flows.')
-st.markdown(':red[**Earnings**]: Data on the earnings report date, earnings per share, expected EPS, and the absolute and relative "surprise" level.')
-st.markdown(":red[**Dividends**]: Information on the company's dividend payments by date.")
-st.markdown(":red[**Splits**]: History of the company's dividend splits.")
+st.markdown(':red[**Overview:**] General information about the company.')
+st.markdown(':red[**Income Statement:**] Income statements for the last 5 periods.')
+st.markdown(':red[**Balance Sheet:**] Balance sheets for the last 5 periods.')
+st.markdown(':red[**Cash Flow:**] Financial statement showing cash flows.')
+st.markdown(':red[**Earnings:**] Data on the earnings report date, earnings per share, expected EPS, and the absolute and relative "surprise" level.')
+st.markdown(":red[**Dividends:**] Information on the company's dividend payments by date.")
+st.markdown(":red[**Splits:**] History of the company's dividend splits.")
 
 with st.form('Data input'):
     ticker = st.text_input('Company ticker', key='ticker')
