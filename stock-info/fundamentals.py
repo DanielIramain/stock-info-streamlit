@@ -1,11 +1,13 @@
-import requests 
-
 import utils
+from custom_classes import Fundamentals
 
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
 import streamlit as st
+
+st.session_state.current_page = "fundamentals"
+#st.write(f"Current page: {st.session_state.current_page}")
+#
+#if st.session_state.current_page == "fundamentals":
+#    st.write("This content only shows on Page 1")
 
 services = ['income_statement', 
             'balance_sheet', 
@@ -13,117 +15,60 @@ services = ['income_statement',
             'earnings', 
             'dividends', 'splits']
 
-class Fundamentals():
-    'Fundamental Analysis class that works with a ticker, the service and an API key'
-    def __init__(self, ticker: str, api_key: str):    
-        self.__ticker = ticker
-        self.__api_key = api_key
+st.subheader('Fundamentals: financial statements and reports', divider=True)
 
-    @property
-    def ticker(self):
-        return self.__ticker
+st.markdown('##### Currently provides accounting and financial information about the company.')
 
-    @property
-    def api_key(self):
-        return self.__api_key
+st.markdown(':red[**Overview:**] General information about the company.')
+st.markdown(':red[**Income Statement:**] Income statements for the last 5 periods.')
+st.markdown(':red[**Balance Sheet:**] Balance sheets for the last 5 periods.')
+st.markdown(':red[**Cash Flow:**] Financial statement showing cash flows.')
+st.markdown(':red[**Earnings:**] Data on the earnings report date, earnings per share, expected EPS, and the absolute and relative "surprise" level.')
+st.markdown(":red[**Dividends:**] Information on the company's dividend payments by date.")
+st.markdown(":red[**Splits:**] History of the company's dividend splits.")
 
-    @ticker.setter
-    def ticker(self, new_ticker):
-        self.__ticker = new_ticker
+with st.form('Data input'):
+    ticker = st.text_input('Company ticker', key='ticker')
+    'The ticker of the company you need information about (US MARKET data only).'
 
-    @api_key.setter
-    def api_key(self, new_api_key):
-        self.__api_key = new_api_key
+    optional = st.selectbox('Select the time lapse: ', ['annual', 'quarterly'], key='optional')
+    'This option will modify the display information of time period in: income statement, balance sheet, cash flow and earnings report.'
 
-    def get_overview(self):
-        'Obtain overview of the company: description and indicators'
-        url = f'https://www.alphavantage.co/query?function=overview&symbol={self.__ticker}&apikey={self.__api_key}'
-        r = requests.get(url)
-        data = r.json()
-        df_overview = pd.DataFrame.from_dict(data, orient='index')
-        resume = df_overview.loc['MarketCapitalization'::]
+    api_key = st.text_input('API key', key='key', type="password")
+    'The API key from the Alpha Vantage service'
 
-        df_overview.drop(resume.index.values.tolist(), inplace=True)
-        
-        return [df_overview, resume]
+    submit = st.form_submit_button('Obtain data')
 
-    def get_data(self, option: str):
-        'Obtain financial data as DataFrame for Fundamental Analysis'
+if submit:
+    fundamentals = Fundamentals(ticker, api_key)
+    data_overview = fundamentals.get_overview()
 
-        try:
-            url = f'https://www.alphavantage.co/query?function={option}&symbol={self.__ticker}&apikey={self.__api_key}'
-            r = requests.get(url)
-            data = r.json()
-            
-            if option in ['income_statement', 'balance_sheet', 'cash_flow']:
-                if st.session_state['optional'] == 'annual':
-                    df_annual = pd.DataFrame(data['annualReports'])
-                    
-                    return df_annual
-                else:
-                    df_quarterly = pd.DataFrame(data['quarterlyReports'])
-                    
-                    return df_quarterly
-            elif option == 'earnings':
-                if st.session_state['optional'] == 'annual':
-                    df_annual_earnings = pd.DataFrame(data['annualEarnings'])
-                    
-                    return df_annual_earnings
-                else:
-                    df_quarterly_earnings = pd.DataFrame(data['quarterlyEarnings'])
-                    
-                    return df_quarterly_earnings
-            elif option in ['dividends', 'splits']:
-                df = pd.DataFrame(data['data'])
-                
-                return df
-            elif option == 'etf_profile':
-                df = pd.DataFrame.from_dict(data, orient='index')
-                
-                return df
-        except Exception as e:
-            print(f'Error in get_data method: {type(e).__name__}')
-
-class Grapher():
-    'Plot financial information'
-    def __init__(self, data):
-        self.__data = data
-
-    @property
-    def data(self) -> pd.DataFrame:
-        "data presented as DataFrame"
-        return self.__data
-
-    def plot_line_chart(self, title: str, x_axis, y_axis, x_text: str, y_text:str):
-        'Plot a line chart using "native" type provided by Streamlit'
-        st.header(title)
-        st.line_chart(self.data, x=x_axis, y=y_axis, x_label=x_text, y_label=y_text)
-
-    def plot_pie_chart(self, size: tuple, title: str, data: pd.DataFrame, columns: list, items_legend: list):
-        'Plot a pie chart with legend'
-        fig, ax = plt.subplots(figsize=size, subplot_kw=dict(aspect="equal"))
-
-        first_row = data.iloc[0]
-        df_first_row = first_row[columns]
-        legend = items_legend
-
-        def func(pct, allvals):
-            absolute = int(np.round(pct/100.*np.sum(allvals)))
-            return f"{pct:.1f}%\n(${absolute:d})"
-
-        wedges, texts, autotexts = ax.pie(df_first_row, autopct=lambda pct: func(pct, df_first_row),
-                                          textprops=dict(color="w"))
-
-        ax.legend(wedges, legend,
-                  title="Concepts",
-                  loc="center left",
-                  bbox_to_anchor=(1, 0, 0.5, 1))
-
-        plt.setp(autotexts, size=8, weight="bold")
-
-        ax.set_title(title)
-
-        st.pyplot(fig)
+    with st.container():
+        col1, col2 = st.columns(2)
+        with col1:
+            st.dataframe(data_overview[0])
+        with col2:
+            st.dataframe(data_overview[1])
+    
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(['Income statement', 'Balance Sheet', 'Cash Flow', 'Earnings', 'Dividends', 'Splits'])
+    with tab1:
+        data = fundamentals.get_data('income_statement')
+        st.dataframe(data)
+    with tab2:
+        data = fundamentals.get_data('balance_sheet')
+        st.dataframe(data)
+    with tab3:
+        data = fundamentals.get_data('cash_flow')
+        st.dataframe(data)
+    with tab4:
+        data = fundamentals.get_data('earnings')
+        st.dataframe(data)
+    with tab5:
+        data = fundamentals.get_data('dividends')
+        st.dataframe(data)
+    with tab6:
+        data = fundamentals.get_data('splits')
+        st.dataframe(data)
 
 #if st.button('Obtain data'):
 
