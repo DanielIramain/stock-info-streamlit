@@ -119,14 +119,19 @@ class Grapher():
 
 class TimeSeries():
     'Get time series of the company'
-    def __init__(self, ticker: str, api_key: int, interval: str) -> None:
+    def __init__(self, ticker: str, service: str, api_key: int, interval: str) -> None:
         self.__ticker = ticker
+        self.__service = service
         self.__api_key = api_key
         self.__interval = interval
 
     @property
     def ticker(self):
         return self.__ticker
+
+    @property
+    def service(self):
+        return self.__service
 
     @property
     def api_key(self):

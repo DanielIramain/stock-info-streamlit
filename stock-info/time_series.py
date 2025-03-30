@@ -39,7 +39,9 @@ with st.form('Data input'):
     submit = st.form_submit_button('Obtain data')
 
 if submit:
-    time_series = TimeSeries(ticker, api_key, interval)
-    series = time_series.get_data_per_interval(options)
+    time_series = TimeSeries(ticker, options, api_key, interval)
+    time_series_data = time_series.get_data_per_interval(options)
+    serie = time_series.transform_data(time_series_data)
     
-    st.dataframe(series)
+
+    st.dataframe(serie)
