@@ -5,9 +5,6 @@ pages = [st.Page("home.py", title='Home'), st.Page("fundamentals.py", title='Fun
 pg = st.navigation(pages)
 pg.run()
 
-# Initialize the current page in session state
-st.session_state.current_page = 'streamlit_app'
-
 st.sidebar.markdown(
     """
     <div style="position: fixed; bottom: 10px; left: 10px; display: flex; align-items: center;">

@@ -3,17 +3,14 @@ from custom_classes import Fundamentals
 
 import streamlit as st
 
-st.session_state.current_page = "fundamentals"
-#st.write(f"Current page: {st.session_state.current_page}")
-#
-#if st.session_state.current_page == "fundamentals":
-#    st.write("This content only shows on Page 1")
-
 services = ['income_statement', 
             'balance_sheet', 
             'cash_flow', 
             'earnings', 
-            'dividends', 'splits']
+            'dividends', 
+            'splits']
+
+tab_names = ['Income statement', 'Balance Sheet', 'Cash Flow', 'Earnings', 'Dividends', 'Splits']
 
 st.subheader('Fundamentals: financial statements and reports', divider=True)
 
@@ -50,28 +47,12 @@ if submit:
         with col2:
             st.dataframe(data_overview[1])
     
-    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(['Income statement', 'Balance Sheet', 'Cash Flow', 'Earnings', 'Dividends', 'Splits'])
-    with tab1:
-        data = fundamentals.get_data('income_statement')
-        st.dataframe(data)
-    with tab2:
-        data = fundamentals.get_data('balance_sheet')
-        st.dataframe(data)
-    with tab3:
-        data = fundamentals.get_data('cash_flow')
-        st.dataframe(data)
-    with tab4:
-        data = fundamentals.get_data('earnings')
-        st.dataframe(data)
-    with tab5:
-        data = fundamentals.get_data('dividends')
-        st.dataframe(data)
-    with tab6:
-        data = fundamentals.get_data('splits')
-        st.dataframe(data)
+    tabs = st.tabs(tab_names)
 
-#if st.button('Obtain data'):
-
+    for i, (tab, service) in enumerate(zip(tabs, services)):
+        with tab:
+            data = fundamentals.get_data(service)
+            st.dataframe(data)
 
     #if services[option] == 'income_statement':
 #
