@@ -5,9 +5,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
 
-class Fundamentals():
-    'Fundamental Analysis class that works with a ticker, the service and an API key'
-    def __init__(self, ticker: str, api_key: str):    
+class Information():
+    def __init__(self, ticker: str, api_key:str):
         self.__ticker = ticker
         self.__api_key = api_key
 
@@ -26,10 +25,14 @@ class Fundamentals():
     @api_key.setter
     def api_key(self, new_api_key):
         self.__api_key = new_api_key
+class Fundamentals(Information):
+    'Fundamental Analysis class that works with a ticker, the service and an API key'
+    def __init__(self, ticker, api_key):
+        super().__init__(ticker, api_key)
 
     def get_overview(self):
         'Obtain overview of the company: description and indicators'
-        url = f'https://www.alphavantage.co/query?function=overview&symbol={self.__ticker}&apikey={self.__api_key}'
+        url = f'https://www.alphavantage.co/query?function=overview&symbol={self.ticker}&apikey={self.api_key}'
         r = requests.get(url)
         data = r.json()
         df_overview = pd.DataFrame.from_dict(data, orient='index')
@@ -43,7 +46,7 @@ class Fundamentals():
         'Obtain financial data as DataFrame for Fundamental Analysis'
 
         try:
-            url = f'https://www.alphavantage.co/query?function={option}&symbol={self.__ticker}&apikey={self.__api_key}'
+            url = f'https://www.alphavantage.co/query?function={option}&symbol={self.ticker}&apikey={self.api_key}'
             r = requests.get(url)
             data = r.json()
             
@@ -76,6 +79,48 @@ class Fundamentals():
         except Exception as e:
             print(f'Error in get_data method: {type(e).__name__}')
 
+class TimeSeries(Information):
+    'Get time series of the company'
+    def __init__(self, ticker, api_key, interval:str):
+        super().__init__(ticker, api_key)
+        self.__interval = interval
+
+    @property
+    def interval(self):
+        return self.__interval
+
+    @interval.setter
+    def interval(self, new_interval):
+        self.__api_key = new_interval
+    
+    def transform_data(self, option: str):
+        '''
+        Transforms data depending on the service in the solicitude
+        '''
+        try:
+            url = f'https://www.alphavantage.co/query?function={option}&symbol={self.ticker}&interval={self.__interval}&apikey={self.api_key}'
+            request = requests.get(url)
+            data = request.json()
+            
+            services = ['time_series_intraday', 
+                    'time_series_daily', 
+                    'time_series_weekly',
+                    'time_series_weekly_adjusted',
+                    'time_series_monthly',
+                    'time_series_monthly_adjusted',
+                    'global_quote']
+            
+            if option in services[0:6]:
+                data_keys = list(data.keys())
+                df = pd.DataFrame.from_dict(data[data_keys[1]], orient='index')
+
+                return df
+            elif option == 'global_quote':
+                df = pd.DataFrame(data)
+
+                return df
+        except Exception as e:
+            print(f'Error transforming time series data: {type(e).__name__}')
 class Grapher():
     'Plot financial information'
     def __init__(self, data):
@@ -116,64 +161,3 @@ class Grapher():
         ax.set_title(title)
 
         st.pyplot(fig)
-
-class TimeSeries():
-    'Get time series of the company'
-    def __init__(self, ticker: str, api_key: int, interval: str) -> None:
-        self.__ticker = ticker
-        self.__api_key = api_key
-        self.__interval = interval
-
-    @property
-    def ticker(self):
-        return self.__ticker
-
-    @property
-    def api_key(self):
-        return self.__api_key
-    
-    @property
-    def interval(self):
-        return self.__interval
-
-    @ticker.setter
-    def ticker(self, new_ticker):
-        self.__ticker = new_ticker
-
-    @api_key.setter
-    def api_key(self, new_api_key):
-        self.__api_key = new_api_key
-
-    @interval.setter
-    def interval(self, new_interval):
-        self.__api_key = new_interval
-    
-    def transform_data(self, option: str):
-        '''
-        Transforms data depending on the service in the solicitude
-        '''
-        try:
-            url = f'https://www.alphavantage.co/query?function={option}&symbol={self.__ticker}&interval={self.__interval}&apikey={self.__api_key}'
-            request = requests.get(url)
-            data = request.json()
-            
-            services = ['time_series_intraday', 
-                    'time_series_daily', 
-                    'time_series_daily_adjusted',
-                    'time_series_weekly',
-                    'time_series_weekly_adjusted',
-                    'time_series_monthly',
-                    'time_series_monthly_adjusted',
-                    'global_quote']
-            
-            if option in services[0:7]:
-                data_keys = list(data.keys())
-                df = pd.DataFrame.from_dict(data[data_keys[1]], orient='index')
-
-                return df
-            elif option == 'global_quote':
-                df = pd.DataFrame(data)
-
-                return df
-        except Exception as e:
-            print(f'Error transforming time series data: {type(e).__name__}')

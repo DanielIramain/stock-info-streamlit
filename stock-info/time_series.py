@@ -5,7 +5,6 @@ import streamlit as st
 services = [
     'time_series_intraday', 
                     'time_series_daily', 
-                    'time_series_daily_adjusted',
                     'time_series_weekly',
                     'time_series_weekly_adjusted',
                     'time_series_monthly',
@@ -15,7 +14,6 @@ services = [
 tab_names = [
     'Time Series Intraday', 
                     'Time Series Daily', 
-                    'Time Series Daily Adjusted',
                     'Time Series Weekly',
                     'Time Series Weekly Adjusted',
                     'Time Series Monthly',
@@ -27,7 +25,6 @@ st.markdown('Time series of :red[**opening, closing, high, and low prices**] alo
 
 st.markdown(':red[**Intraday**]')
 st.markdown(':red[**Daily**]')
-st.markdown(':red[**Daily adjusted**]')
 st.markdown(':red[**Weekly**]')
 st.markdown(':red[**Weekly adjusted**]')
 st.markdown(':red[**Monthly**]')
