@@ -8,7 +8,7 @@ pg.run()
 st.sidebar.markdown(
     """
     <div style="position: fixed; bottom: 10px; left: 10px; display: flex; align-items: center;">
-        <a href="https://github.com/DanielIramain" target="_blank" style="margin-right: 10px;">
+        <a href="https://github.com/DanielIramain/stock-info-streamlit" target="_blank" style="margin-right: 10px;">
             <img src="https://img.icons8.com/?size=80&id=iEBcQcM9rnZ9&format=png">
         </a>
         v1.0.0
@@ -47,4 +47,5 @@ text-align: center;
 <p>Developed with ❤ by D. Daniel Iramain</p>
 </div>
 """
+
 st.markdown(footer,unsafe_allow_html=True)
