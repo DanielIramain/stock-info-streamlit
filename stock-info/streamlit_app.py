@@ -1,6 +1,6 @@
 import streamlit as st
 
-pages = [st.Page("home.py", title='Home'), st.Page("fundamentals.py", title='Fundamentals'), st.Page("time_series.py", title='Time Series')]
+pages = [st.Page("home.py", title='Home'), st.Page("fundamentals.py", title='Fundamentals'), st.Page("time_series.py", title='Time Series'), st.Page("Help.py", title='Help')]
 
 pg = st.navigation(pages)
 pg.run()
