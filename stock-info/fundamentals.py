@@ -1,7 +1,6 @@
-import utils
 from custom_classes import Fundamentals
 
-import streamlit as st
+import streamlit as st 
 
 services = ['income_statement', 
             'balance_sheet', 
@@ -12,7 +11,7 @@ services = ['income_statement',
 
 tab_names = ['Income statement', 'Balance Sheet', 'Cash Flow', 'Earnings', 'Dividends', 'Splits']
 
-st.subheader('Fundamentals: financial statements and reports', divider=True)
+st.subheader(':bar_chart: Fundamentals: financial statements and reports', divider=True)
 
 st.markdown('##### Currently provides accounting and financial information about the company.')
 
@@ -26,13 +25,13 @@ st.markdown(":red[**Splits:**] History of the company's dividend splits.")
 
 with st.form('Data input'):
     ticker = st.text_input('Company ticker', key='ticker')
-    'The ticker of the company you need information about (US MARKET data only).'
+    'The ticker of the company you need information about ([US MARKET](https://www.nasdaq.com/market-activity/stocks/screener) data only).'
 
     optional = st.selectbox('Select the time lapse: ', ['annual', 'quarterly'], key='optional')
-    'This option will modify the display information of time period in: income statement, balance sheet, cash flow and earnings report.'
+    'This option modifies the information displayed according to the time period. It affects: Income Statement, Balance Sheet, Cash Flow and Earnings report.'
 
     api_key = st.text_input('API key', key='key', type="password")
-    'The API key from the Alpha Vantage service'
+    'The API key from [the Alpha Vantage service](https://www.alphavantage.co/support/#api-key)'
 
     submit = st.form_submit_button('Obtain data')
 
@@ -53,38 +52,3 @@ if submit:
         with tab:
             data = fundamentals.get_data(service)
             st.dataframe(data)
-
-    #if services[option] == 'income_statement':
-#
-    #    data = utils.pipeline(data, ['fiscalDateEnding', 'reportedCurrency'])
-    #    
-    #    graphs = Grapher(data)
-#
-    #    graphs.plot_line_chart('Revenue and cost revenue evolution', 'fiscalDateEnding', 
-    #                           ['totalRevenue', 'costOfRevenue', 'costofGoodsAndServicesSold'], 
-    #                           'Fiscal date ending', 'Revenue and cost expresed in dollars')
-    #    
-    #    graphs.plot_line_chart('Net income evolution over time', 'fiscalDateEnding', 'netIncome', 
-    #                           'Fiscal date ending', 'Net income in dollars')
-    #    
-    #    graphs.plot_line_chart('EBITDA evolution', 'fiscalDateEnding', 'ebitda', 'Fiscal date ending', 'EBITDA in dollars')
-#
-    #    col1, col2 = st.columns(2)
-    #    with col1:
-    #        graphs.plot_line_chart('Gross profit evolution', 'fiscalDateEnding', 'grossProfit', 
-    #                               'Fiscal date ending', 'Gross profit expressed in dollars')
-    #        
-    #        graphs.plot_pie_chart(size=(9, 9),title='Total revenue and cost', 
-    #                              data=data, columns=['totalRevenue', 'costOfRevenue'], items_legend=['Total revenue', 'Cost of revenue'])
-    #        
-    #    with col2:
-    #        data['grossProfitMargin'] = ((data['totalRevenue'] - data['costofGoodsAndServicesSold']) / data['totalRevenue']) * 100
-#
-    #        graphs.plot_line_chart('Gross profit margin evolution', 'fiscalDateEnding', 'grossProfitMargin', 
-    #                               'Fiscal date ending', 'Gross profit margin')
-    #        
-    #        graphs.plot_pie_chart(size=(9,9), title='Costs of the company', data=data, 
-    #                              columns=['costofGoodsAndServicesSold', 
-    #                                       'sellingGeneralAndAdministrative', 'researchAndDevelopment', 'operatingExpenses'], 
-    #                              items_legend=['Cost of goods and services sold', 
-    #                                            'General and administrative costs', 'R&D Cost', 'Operating expenses'])
