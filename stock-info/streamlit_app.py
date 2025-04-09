@@ -1,8 +1,14 @@
 import streamlit as st
 
-pages = [st.Page("home.py", title='Home'), st.Page("fundamentals.py", title='Fundamentals'), st.Page("time_series.py", title='Time Series'), st.Page("Help.py", title='Help')]
+pages = [st.Page("home.py", title='Home', icon=':material/home:'), 
+         st.Page("fundamentals.py", title='Fundamentals', icon=':material/finance:'), 
+         st.Page("time_series.py", title='Time Series', icon=':material/trending_up:'), 
+         st.Page("Help.py", title='Help', icon=':material/help:')]
 
 pg = st.navigation(pages)
+
+st.set_page_config(page_title="Stock Info", page_icon='../resources/icon-stock-info.png')
+
 pg.run()
 
 st.sidebar.markdown(
@@ -19,7 +25,7 @@ st.sidebar.markdown(
 
 st.logo('../resources/logo-stock-info.png', size='large', icon_image='../resources/icon-stock-info.png')
 
-footer="""<style>
+pages_style = """<style>
 a:link , a:visited{
 color: crimson;
 background-color: transparent;
@@ -43,9 +49,12 @@ color: white;
 text-align: center;
 }
 </style>
-<div class="footer">
-<p>Developed with ❤ by D. Daniel Iramain</p>
+"""
+
+footer = """<div class="footer">
+    <p>Developed with ❤ by D. Daniel Iramain</p>
 </div>
 """
 
+st.markdown(pages_style,unsafe_allow_html=True)
 st.markdown(footer,unsafe_allow_html=True)
