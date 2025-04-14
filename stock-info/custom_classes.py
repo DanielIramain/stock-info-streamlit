@@ -1,32 +1,49 @@
-import requests
+from utils import rerun
 
+import requests
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
-
 class Information():
-    def __init__(self, ticker: str, api_key:str):
-        self.__ticker = ticker
-        self.__api_key = api_key
+    'Base class for obtaining information from the API'
+    def __init__(self, ticker, api_key):
+        self.ticker = ticker
+        self.api_key = api_key
 
     @property
     def ticker(self):
-        return self.__ticker
+        return self._ticker
 
     @property
     def api_key(self):
-        return self.__api_key
+        return self._api_key
 
     @ticker.setter
     def ticker(self, new_ticker):
-        self.__ticker = new_ticker
+        try:
+            if new_ticker.isdigit():
+                rerun(':warning: Ticker cannot be a number. Retry with a valid ticker.')
+            elif new_ticker is None or not new_ticker.strip():
+                rerun(':warning: Ticker is empty. Retry with input information.')
+            elif len(new_ticker) > 5:
+                rerun(':warning: Ticker is too long. Retry with a valid ticker.')
+            else:
+                self._ticker = new_ticker.upper()
+        except Exception as e:
+            print(f'An error occured while setting the ticker value: {type(e).__name__}')
 
     @api_key.setter
     def api_key(self, new_api_key):
-        self.__api_key = new_api_key
+        try:
+            if new_api_key is None or not new_api_key.strip():
+                rerun(':warning: API key is empty. Retry with input information.')
+            else:
+                self._api_key = new_api_key
+        except Exception as e:
+            print(f'An error occured while setting the API key value: {type(e).__name__}')
 class Fundamentals(Information):
-    'Fundamental Analysis class that works with a ticker, the service and an API key'
+    'Fundamental Analysis class that works with a ticker and an API key'
     def __init__(self, ticker, api_key):
         super().__init__(ticker, api_key)
 
@@ -91,7 +108,7 @@ class TimeSeries(Information):
 
     @interval.setter
     def interval(self, new_interval):
-        self.__api_key = new_interval
+        self.__interval = new_interval
     
     def transform_data(self, option: str):
         '''
