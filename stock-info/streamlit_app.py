@@ -3,7 +3,7 @@ import streamlit as st
 pages = [st.Page("home.py", title='Home', icon=':material/home:'), 
          st.Page("fundamentals.py", title='Fundamentals', icon=':material/finance:'), 
          st.Page("time_series.py", title='Time Series', icon=':material/trending_up:'), 
-         st.Page("Help.py", title='Help', icon=':material/help:')]
+         st.Page("help.py", title='Help', icon=':material/help:')]
 
 pg = st.navigation(pages)
 
