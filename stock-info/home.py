@@ -1,3 +1,5 @@
+from utils import get_resource_path
+
 import streamlit as st
 
 st.title('_Stock Info_')
@@ -9,7 +11,9 @@ st.markdown("Obtain financial information from publicly traded companies "
 st.markdown('The data is displayed as a DataFrame and can be download in .csv format to be further processed '
 'either by DBMS or business intelligence platforms such as Power BI or even spreadsheets such as Excel.')
 
-st.image('../resources/finance-home.jpg')
+image_path = get_resource_path('resources', 'finance-home.jpg')
+
+st.image(image_path)
 
 st.subheader('Instructions', divider=True)
 

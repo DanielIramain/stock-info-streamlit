@@ -1,4 +1,5 @@
 import time
+from pathlib import Path
 
 import pandas as pd
 import streamlit as st
@@ -11,6 +12,10 @@ def rerun(text_warning: str) -> None:
     with st.spinner(text="Please wait...", show_time=True):
         time.sleep(7)
         st.rerun()
+
+def get_resource_path(directory: str, file_name: str):
+    'Get the path of a resource file.'
+    return Path(__file__).parent.parent / directory / file_name
 
 def pipeline(df: pd.DataFrame, columns_list:list) -> pd.DataFrame:
     'Pipeline to process the data obtained from the API.'
