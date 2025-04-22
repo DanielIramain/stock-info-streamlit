@@ -28,7 +28,7 @@ st.sidebar.markdown(
     unsafe_allow_html=True
 )
 
-st.logo(logo_path, size='large', icon_image='../resources/icon-stock-info.png')
+st.logo(logo_path, size='large', icon_image=icon_path)
 
 pages_style = """<style>
 a:link , a:visited{
