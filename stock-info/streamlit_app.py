@@ -1,3 +1,5 @@
+from utils import get_resource_path
+
 import streamlit as st
 
 pages = [st.Page("home.py", title='Home', icon=':material/home:'), 
@@ -7,7 +9,10 @@ pages = [st.Page("home.py", title='Home', icon=':material/home:'),
 
 pg = st.navigation(pages)
 
-st.set_page_config(page_title="Stock Info", page_icon='../resources/icon-stock-info.png')
+icon_path = get_resource_path('resources', 'icon-stock-info.png')
+logo_path = get_resource_path('resources', 'logo-stock-info.png')
+
+st.set_page_config(page_title="Stock Info", page_icon=icon_path)
 
 pg.run()
 
@@ -23,7 +28,7 @@ st.sidebar.markdown(
     unsafe_allow_html=True
 )
 
-st.logo('../resources/logo-stock-info.png', size='large', icon_image='../resources/icon-stock-info.png')
+st.logo(logo_path, size='large', icon_image='../resources/icon-stock-info.png')
 
 pages_style = """<style>
 a:link , a:visited{
