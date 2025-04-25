@@ -39,3 +39,25 @@ streamlit run streamlit_app.py
 ```
 Or the equivalent for your OS.
 
+## How to use the project
+It's simple as:
+1. Write the ticker you need. You can consult the list of [availables companies](https://www.nasdaq.com/market-activity/stocks/screener).
+2. Select the periodicity you need to analyse (annual or quarterly according to GAAP or IFRS for foreign companies that choose not to file with GAAP).
+3. Introduce your API Key from Alpha Vantage service. If you do not have one you can [claim it **FOR FREE**](https://www.alphavantage.co/support/#api-key).
+
+![](https://github.com/DanielIramain/DanielIramain/blob/main/gifs/stock-info-demo.gif)
+
+## License
+![Creative Commons Zero v1.0 Universal](https://github.com/DanielIramain/stock-info-streamlit/blob/main/LICENSE)
+
+## Limitations, future features & others
+There are 2 main limitations to this project. The first one refers to the fact that when the app is deployed on Streamlit Community Cloud, all outbound API requests come from Streamlit's server infrastructure rather than individual user IPs. This means:
+
++ API calls from your app will appear to come from Streamlit's servers (located in the United States)
++ All Streamlit Cloud apps share the same set of IP addresses for outbound requests
+
+Unfortunately this implies that the app can be deployed in Streamlit Community Cloud since every call (the main feature) is rejected due to API call rate limit. 
+
+On the other hand, according to the Alpha Vantage service documentation, the free version allows up to 25 API calls per day to retrieve the required information. Due to this limitation, users can only make three combined requests (fundamentals and time series) per day. You can request a premium membership in Alpha Vantage to obtain an API key that removes this restriction.
+
+Other than that, the app is still in development, so new features will be added in the near future.
