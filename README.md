@@ -6,22 +6,22 @@
 Stock Info is a web application with the objetive of simplify the process to obtain financial information of companies listed in the [US Stock Market](https://www.nasdaq.com/market-activity/stocks/screener). In its current version allows you to get fundamental data and time series data displayed as DataFrames and can be storaged in CSV format.
 
 For the **fundamental information**, it gets you:
-- $${\color{red}Overview:}$$ General information about the company.
-- $${\color{red}Income \space Statement:}$$ Income statements for the last 5 periods.
-- $${\color{red}Balance \space Sheet:}$$ Balance sheets for the last 5 periods.
-- $${\color{red}Cash \space Flow:}$$ Financial statement showing cash flows.
-- $${\color{red}Earnings:}$$ Data on the earnings report date, earnings per share, expected EPS, and the absolute and relative "surprise" level.
-- $${\color{red}Dividends:}$$ Information on the company's dividend payments by date.
-- $${\color{red}Splits:}$$ History of the company's dividend splits.
+- <ins>Overview</ins>: General information about the company.
+- <ins>Income Statement</ins>: Income statements for the last 5 periods.
+- <ins>Balance Sheet</ins>: Balance sheets for the last 5 periods.
+- <ins>Cash Flow</ins>: Financial statement showing cash flows.
+- <ins>Earnings</ins>: Data on the earnings report date, earnings per share, expected EPS, and the absolute and relative "surprise" level.
+- <ins>Dividends</ins>: Information on the company's dividend payments by date.
+- <ins>Splits</ins>: History of the company's dividend splits.
 
 And by using **time series**:
-- $${\color{red}Intraday}$$
-- $${\color{red}Daily}$$
-- $${\color{red}Weekly}$$
-- $${\color{red}Weekly \space Adjusted}$$
-- $${\color{red}Monthly}$$
-- $${\color{red}Monhtly \space Adjusted}$$
-- $${\color{red}Global \space quote \space (last \space price \space and \space volume)}$$
+- <ins>Intraday</ins>
+- <ins>Daily</ins>
+- <ins>Weekly</ins>
+- <ins>Weekly Adjusted</ins>
+- <ins>Monthly</ins>
+- <ins>Monhtly Adjusted</ins>
+- <ins>Global quote</ins> (last price and volume)
 
 ## Tecnologies used
 The core of the project is writen in Python using libraries for data analytics such as Numpy and Pandas. There is also some HTML and CSS just for style purposes. Requirements.txt is included in the project.
