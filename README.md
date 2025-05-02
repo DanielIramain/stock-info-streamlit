@@ -56,7 +56,7 @@ There are 2 main limitations to this project. The first one refers to the fact t
 + API calls from your app will appear to come from Streamlit's servers (located in the United States)
 + All Streamlit Cloud apps share the same set of IP addresses for outbound requests
 
-Unfortunately this implies that the app can be deployed in Streamlit Community Cloud since every call (the main feature) is rejected due to API call rate limit. 
+Unfortunately this implies that the app can't be deployed in Streamlit Community Cloud since every call (the main feature) is rejected due to API call rate limit. 
 
 On the other hand, according to the Alpha Vantage service documentation, the free version allows up to 25 API calls per day to retrieve the required information. Due to this limitation, users can only make three combined requests (fundamentals and time series) per day. You can request a premium membership in Alpha Vantage to obtain an API key that removes this restriction.
 
