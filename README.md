@@ -31,7 +31,7 @@ Framework used: ![Streamlit](https://img.shields.io/badge/Streamlit-%23FE4B4B.sv
 Services used: API REST architecture provided by [Alpha Vantage](https://www.alphavantage.co/)
 
 ## How to install and run the project
-Once in the IDE of your preference, according to [Streamlit Documentation](https://docs.streamlit.io/get-started/fundamentals/main-concepts), you need to execute the main file command of Streamlit to run the project in your browser, in this case `streamlit_app.py`. Using the terminal:
+Once you are in your preferred IDE and have installed all the dependencies, according to [Streamlit Documentation](https://docs.streamlit.io/get-started/fundamentals/main-concepts), you need to execute the main file command of Streamlit to run the project in your browser, in this case `streamlit_app.py`. Using the terminal:
 ```
 cd stock-info
 
